@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduTech – Portail Administration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    /* --- VARIABLES & RESET --- */
+    :root {
+      --primary: #3b82f6; /* Bleu moderne */
+      --primary-hover: #2563eb;
+      --bg-body: #f3f4f6;
+      --bg-card: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 2rem;
+    }
+
+    /* --- LAYOUT --- */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    header p { color: var(--text-muted); }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    /* Layout en 2 colonnes sur écran large */
+    @media (min-width: 768px) {
+      .grid-layout {
+        grid-template-columns: 350px 1fr;
+        align-items: start;
+      }
+    }
+
+    /* --- CARDS --- */
+    .card {
+      background: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--bg-body);
+      padding-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* --- FORMULAIRE --- */
+    .form-group { margin-bottom: 1rem; }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button:hover { background-color: var(--primary-hover); }
+
+    /* --- LISTE ÉTUDIANTS --- */
+    #students-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .student-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: transform 0.2s;
+    }
+
+    .student-item:hover {
+      transform: translateX(4px);
+      border-color: var(--primary);
+    }
+
+    .student-avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #dbeafe;
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .student-info { display: flex; flex-direction: column; }
+    .student-name { font-weight: 600; color: var(--text-main); }
+    .student-email { font-size: 0.875rem; color: var(--text-muted); }
+    
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem 0;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1><i class="ph ph-graduation-cap"></i> EduTech Admin</h1>
+      <p>Plateforme de gestion des inscriptions universitaires</p>
+    </header>
+
+    <div class="grid-layout">
+      <aside class="card">
+        <h2><i class="ph ph-user-plus"></i> Inscription</h2>
+        <form id="student-form">
+          <div class="form-group">
+            <label for="name">Nom complet</label>
+            <input type="text" id="name" placeholder="Ex: Jean Dupont" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Adresse Email</label>
+            <input type="email" id="email" placeholder="Ex: jean@edutech.fr" required />
+          </div>
+          <button type="submit">
+            <i class="ph ph-check-circle"></i> Confirmer
+          </button>
+        </form>
+      </aside>
+
+      <main class="card">
+        <h2><i class="ph ph-users"></i> Étudiants inscrits</h2>
+        <ul id="students-list">
+          <li class="empty-state">Chargement des données...</li>
+        </ul>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://edutech.local/api";
+    // Fonction pour générer l'initiale
+    function getInitial(name) {
+      return name ? name.charAt(0).toUpperCase() : "?";
+    }
+
+    async function loadStudents() {
+      const list = document.getElementById("students-list");
+      
+      try {
+        const res = await fetch(API_URL + "/students");
+        if (!res.ok) throw new Error("Erreur réseau");
+        
+        const students = await res.json();
+        list.innerHTML = "";
+
+        if (students.length === 0) {
+          list.innerHTML = `<li class="empty-state">Aucun étudiant inscrit pour le moment.</li>`;
+          return;
+        }
+
+        students.forEach(s => {
+          const li = document.createElement("li");
+          li.className = "student-item";
+          
+          // Structure HTML plus riche pour chaque étudiant
+          li.innerHTML = `
+            <div class="student-avatar">${getInitial(s.name)}</div>
+            <div class="student-info">
+              <span class="student-name">${s.name}</span>
+              <span class="student-email">${s.email}</span>
+            </div>
+          `;
+          list.appendChild(li);
+        });
+
+      } catch (error) {
+        console.error(error);
+        list.innerHTML = `<li class="empty-state" style="color:red">Impossible de charger les étudiants.<br>Vérifiez que le serveur tourne.</li>`;
+      }
+    }
+
+    document
+      .getElementById("student-form")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector("button");
+        const originalText = btn.innerHTML;
+        
+        // Feedback visuel pendant le chargement
+        btn.innerHTML = "Ajout en cours...";
+        btn.disabled = true;
+
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+
+        try {
+          await fetch(API_URL + "/students", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email })
+          });
+
+          document.getElementById("name").value = "";
+          document.getElementById("email").value = "";
+          await loadStudents(); // On recharge la liste
+          
+        } catch (error) {
+          alert("Erreur lors de l'ajout de l'étudiant");
+        } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      });
+
+    loadStudents();
+  </script>
+</body>
+</html>
