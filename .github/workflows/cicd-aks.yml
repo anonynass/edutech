@@ -1,0 +1,47 @@
+name: CI/CD EduTech AKS
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Docker login to ACR
+      run: |
+        echo "${{ secrets.ACR_PASSWORD }}" | docker login \
+          ${{ secrets.ACR_LOGIN_SERVER }} \
+          -u ${{ secrets.ACR_USERNAME }} \
+          --password-stdin
+
+    - name: Build & push backend
+      run: |
+        docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/edutech-backend:${{ github.sha }} ./backend
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/edutech-backend:${{ github.sha }}
+
+    - name: Build & push frontend
+      run: |
+        docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/edutech-frontend:${{ github.sha }} ./frontend
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/edutech-frontend:${{ github.sha }}
+
+    - name: Configure kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+    - name: Deploy to AKS
+      run: |
+        kubectl set image deployment/backend-deployment \
+          backend=${{ secrets.ACR_LOGIN_SERVER }}/edutech-backend:${{ github.sha }}
+
+        kubectl set image deployment/frontend-deployment \
+          frontend=${{ secrets.ACR_LOGIN_SERVER }}/edutech-frontend:${{ github.sha }}
+
+        kubectl rollout status deployment/backend-deployment --timeout=180s
+        kubectl rollout status deployment/frontend-deployment --timeout=180s
