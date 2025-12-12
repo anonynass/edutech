@@ -216,83 +216,93 @@
     </div>
   </div>
 
-  <script>
-    const API_URL = "http://edutech.local/api";
-    // Fonction pour générer l'initiale
-    function getInitial(name) {
-      return name ? name.charAt(0).toUpperCase() : "?";
+<script>
+  // API relative → PAS de http://edutech.local
+  const API_URL = "/api";
+
+  // Fonction pour générer l'initiale
+  function getInitial(name) {
+    return name ? name.charAt(0).toUpperCase() : "?";
+  }
+
+  async function loadStudents() {
+    const list = document.getElementById("students-list");
+
+    try {
+      const res = await fetch(`${API_URL}/students`);
+      if (!res.ok) throw new Error("Erreur réseau");
+
+      const students = await res.json();
+      list.innerHTML = "";
+
+      if (students.length === 0) {
+        list.innerHTML = `
+          <li class="empty-state">
+            Aucun étudiant inscrit pour le moment.
+          </li>`;
+        return;
+      }
+
+      students.forEach(s => {
+        const li = document.createElement("li");
+        li.className = "student-item";
+
+        li.innerHTML = `
+          <div class="student-avatar">${getInitial(s.name)}</div>
+          <div class="student-info">
+            <span class="student-name">${s.name}</span>
+            <span class="student-email">${s.email}</span>
+          </div>
+        `;
+
+        list.appendChild(li);
+      });
+
+    } catch (error) {
+      console.error(error);
+      list.innerHTML = `
+        <li class="empty-state" style="color:red">
+          Impossible de charger les étudiants.<br>
+          Vérifiez que le serveur est accessible.
+        </li>`;
     }
+  }
 
-    async function loadStudents() {
-      const list = document.getElementById("students-list");
-      
+  document
+    .getElementById("student-form")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button");
+      const originalText = btn.innerHTML;
+
+      btn.innerHTML = "Ajout en cours...";
+      btn.disabled = true;
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+
       try {
-        const res = await fetch(API_URL + "/students");
-        if (!res.ok) throw new Error("Erreur réseau");
-        
-        const students = await res.json();
-        list.innerHTML = "";
-
-        if (students.length === 0) {
-          list.innerHTML = `<li class="empty-state">Aucun étudiant inscrit pour le moment.</li>`;
-          return;
-        }
-
-        students.forEach(s => {
-          const li = document.createElement("li");
-          li.className = "student-item";
-          
-          // Structure HTML plus riche pour chaque étudiant
-          li.innerHTML = `
-            <div class="student-avatar">${getInitial(s.name)}</div>
-            <div class="student-info">
-              <span class="student-name">${s.name}</span>
-              <span class="student-email">${s.email}</span>
-            </div>
-          `;
-          list.appendChild(li);
+        await fetch(`${API_URL}/students`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email })
         });
+
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        await loadStudents();
 
       } catch (error) {
         console.error(error);
-        list.innerHTML = `<li class="empty-state" style="color:red">Impossible de charger les étudiants.<br>Vérifiez que le serveur tourne.</li>`;
+        alert("Erreur lors de l'ajout de l'étudiant");
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
       }
-    }
+    });
 
-    document
-      .getElementById("student-form")
-      .addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector("button");
-        const originalText = btn.innerHTML;
-        
-        // Feedback visuel pendant le chargement
-        btn.innerHTML = "Ajout en cours...";
-        btn.disabled = true;
+  loadStudents();
+</script>
 
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-
-        try {
-          await fetch(API_URL + "/students", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email })
-          });
-
-          document.getElementById("name").value = "";
-          document.getElementById("email").value = "";
-          await loadStudents(); // On recharge la liste
-          
-        } catch (error) {
-          alert("Erreur lors de l'ajout de l'étudiant");
-        } finally {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        }
-      });
-
-    loadStudents();
-  </script>
 </body>
 </html>

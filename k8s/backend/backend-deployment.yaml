@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: edutech-backend:v2
-          imagePullPolicy: Never
+          image: edutechregistry.azurecr.io/edutech-backend:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 4000
           env:

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: edutech-frontend:latest
-          imagePullPolicy: Never
+          image: edutechregistry.azurecr.io/edutech-frontend:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
